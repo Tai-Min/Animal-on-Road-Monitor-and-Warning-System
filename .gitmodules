@@ -1,0 +1,3 @@
+[submodule "air_visibility/Depth-Anything"]
+	path = air_visibility/Depth-Anything
+	url = https://github.com/LiheYoung/Depth-Anything

@@ -1,0 +1,33 @@
+import os
+import glob
+import cv2 as cv
+import config
+
+def process_image(img_path, export_path):
+    
+    img = cv.imread(img_path)
+    img = cv.resize(img, (config.CAMERA_WIDTH, config.CAMERA_HEIGHT), interpolation= cv.INTER_CUBIC)
+
+    img_name = os.path.basename(img_path)
+    cv.imwrite(os.path.join(export_path, img_name), img)
+
+if __name__ == "__main__":
+    CLASSES_PATH = "./dataset/animals/"
+    EXPORT_PATH = "./dataset/processed/"
+
+    if not os.path.exists(EXPORT_PATH):
+        os.makedirs(EXPORT_PATH)
+
+    classes_folders = [file for file in os.listdir(CLASSES_PATH)]
+
+    for animal_class in classes_folders:
+        animal_class += "/"
+        images = glob.glob(os.path.join(CLASSES_PATH, animal_class, "*.jpg"))
+
+        animal_export_path = os.path.join(EXPORT_PATH, animal_class)
+
+        if not os.path.exists(animal_export_path):
+            os.makedirs(animal_export_path)
+
+        for img in images:
+            process_image(img, animal_export_path)
