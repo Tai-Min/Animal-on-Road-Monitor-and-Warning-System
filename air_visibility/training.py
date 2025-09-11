@@ -19,7 +19,6 @@ class DataGenerator(keras.utils.Sequence):
     def __init__(self, labels, batch_size, shuffle=True, **kwargs):
         super().__init__(**kwargs)
         
-        
         self.labels = labels
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -123,8 +122,7 @@ with open('./dataset/labels.csv', mode='r') as file:
 dataset_training = DataGenerator(labels, 32)
 
 model = get_architecture()
+model.summary()
 keras.utils.plot_model(model, "model.png", dpi=100, show_shapes=True)
 model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
-#history = model.fit(
-#    dataset_training,
-#    epochs=10)
+#history = model.fit(ataset_training, epochs=10)

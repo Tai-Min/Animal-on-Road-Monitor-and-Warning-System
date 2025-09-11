@@ -24,11 +24,11 @@ void setup()
 void loop()
 {
   top_sign.setSign(Sign<LED_PANEL>::SignType::SIGN_WILD_ANIMALS);
-  bottom_sign.setSign(Sign<LED_PANEL>::SignType::TAIMIN, Sign<LED_PANEL>::SpeedType::SPEED_30);
+  bottom_sign.setSign(Sign<LED_PANEL>::SignType::SIGN_SPEED, Sign<LED_PANEL>::SpeedType::SPEED_30);
   ledPanel.swapBuffers(true);
   delay(1200);
-  top_sign.setSign(Sign<LED_PANEL>::SignType::SIGN_ANIMALS);
-  bottom_sign.setSign(Sign<LED_PANEL>::SignType::SIGN_SPEED, Sign<LED_PANEL>::SpeedType::SPEED_50);
-  ledPanel.swapBuffers(true);
-  delay(1200);
+  //top_sign.setSign(Sign<LED_PANEL>::SignType::SIGN_ANIMALS);
+  //bottom_sign.setSign(Sign<LED_PANEL>::SignType::SIGN_SPEED, Sign<LED_PANEL>::SpeedType::SPEED_50);
+  //ledPanel.swapBuffers(true);
+  //delay(1200);
 }
