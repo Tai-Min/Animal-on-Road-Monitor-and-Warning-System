@@ -1,30 +1,22 @@
 #pragma once
+#include <stddef.h>
 
-#include <tensorflow/lite/micro/micro_interpreter.h>
-#include <tensorflow/lite/micro/all_ops_resolver.h>
+typedef int(*DataProcessor)(size_t, size_t, float*);
 
-class TempReporter: public tflite::ErrorReporter
-{
-  virtual int Report(const char* format, va_list args)
-  {
-    return 0;
-  } 
+enum ClassificationResult {
+    EMPTY,
+    ANIMAL,
+    ERROR
 };
 
-class Classifier
-{
-public:
-    Classifier();
-    bool begin(const uint8_t* model);
-private:
-    const tflite::Model *m_model = nullptr;
-    tflite::MicroInterpreter *m_interpreter = nullptr;
-    TfLiteTensor *m_model_input = nullptr;
+/**
+ * @brief Register pointer to preprocessor function for the classifier
+ * 
+ * @param processor Pointer to preprocessor
+ */
+void registerRawDataProcessor(DataProcessor processor);
 
-    static const long m_tensorAreaSize = 50 * 1024;
-    uint8_t m_tensorArea[m_tensorAreaSize];
-
-    tflite::AllOpsResolver m_resolver;
-    TempReporter m_reporter;
-    TfLiteTensor* model_input = nullptr;
-};
+/**
+ * @brief Run inference
+ */
+ClassificationResult runClassifier();

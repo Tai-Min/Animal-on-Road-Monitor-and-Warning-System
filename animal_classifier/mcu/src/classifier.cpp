@@ -1,38 +1,36 @@
 #include "classifier.h"
 #include <Arduino.h>
+#include <edge-impulse-sdk/classifier/ei_run_classifier.h>
 
-Classifier::Classifier()
+namespace
 {
-}
+    DataProcessor rawDataProcessor;
+};
 
-bool Classifier::begin(const uint8_t *model)
+void registerRawDataProcessor(DataProcessor processor)
 {
-    m_model = tflite::GetModel(model);
+    rawDataProcessor = processor;
+};
 
-    if (m_model->version() != TFLITE_SCHEMA_VERSION)
+ClassificationResult runClassifier()
+{
+    if (!rawDataProcessor)
     {
-        Serial.print("Model provided is schema version not equal to supported version - ");
-        Serial.print(m_model->version());
-        Serial.print(" : ");
-        Serial.println(TFLITE_SCHEMA_VERSION);
-        return false;
+        return ClassificationResult::ERROR;
     }
-    static tflite::MicroInterpreter interpreter(m_model, m_resolver, m_tensorArea, (size_t)m_tensorAreaSize, &m_reporter);
-    m_interpreter = &interpreter;
 
-    TfLiteStatus allocate_status = m_interpreter->AllocateTensors();
-    if (allocate_status != kTfLiteOk) {
-        Serial.println("AllocateTensors() failed");
-        return false;
+    ei_impulse_result_t result = {nullptr};
+    signal_t signal;
+
+    signal.total_length = EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE;
+    signal.get_data = rawDataProcessor;
+
+    EI_IMPULSE_ERROR res = run_classifier(&signal, &result, false);
+    if (res != EI_IMPULSE_OK)
+    {
+        Serial.println("ERR: Failed to run classifier");
+        return ClassificationResult::ERROR;
     }
-    model_input = m_interpreter->input(0);
-    Serial.print(" Dims: ");
-    Serial.print(model_input->dims->size);
-    Serial.print(", ");
-    Serial.print(model_input->dims->data[0]);
-    Serial.print(", ");
-    Serial.print(model_input->dims->data[1]);
-    Serial.print(", ");
-    Serial.print(model_input->type);
-    return true;
+
+    return result.classification[0].value > 0.2 ? ClassificationResult::ANIMAL : ClassificationResult::EMPTY;
 }
