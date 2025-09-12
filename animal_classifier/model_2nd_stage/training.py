@@ -85,8 +85,11 @@ def get_architecture():
     x = layers.Activation('relu')(x)
     x = layers.MaxPooling2D((3, 3), strides=(2, 2))(x)
 
-    x = conv_layer(x, 3, [8, 8, 16], 1)
-    x = id_layer(x, 3, [8, 8, 16])
+    x = conv_layer(x, 3, [32, 32, 64], 1)
+    x = id_layer(x, 3, [32, 32, 64])
+
+    x = conv_layer(x, 3, [64, 64, 128], 1)
+    x = id_layer(x, 3, [64, 64, 128])
     x = layers.AveragePooling2D((2, 2))(x)
 
     x = layers.Flatten()(x)

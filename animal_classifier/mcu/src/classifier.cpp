@@ -2,17 +2,7 @@
 #include <Arduino.h>
 #include <edge-impulse-sdk/classifier/ei_run_classifier.h>
 
-namespace
-{
-    DataProcessor rawDataProcessor;
-};
-
-void registerRawDataProcessor(DataProcessor processor)
-{
-    rawDataProcessor = processor;
-};
-
-ClassificationResult runClassifier()
+ClassificationResult runClassifier(DataProcessor rawDataProcessor)
 {
     if (!rawDataProcessor)
     {
@@ -32,5 +22,5 @@ ClassificationResult runClassifier()
         return ClassificationResult::ERROR;
     }
 
-    return result.classification[0].value > 0.2 ? ClassificationResult::ANIMAL : ClassificationResult::EMPTY;
+    return result.classification[0].value > 0.85 ? ClassificationResult::ANIMAL : ClassificationResult::EMPTY;
 }

@@ -4,11 +4,9 @@ static const struct {
   unsigned int 	 width;
   unsigned int 	 height;
   unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
-  char         	*comment;
   unsigned char	 pixel_data[64 * 64 * 2 + 1];
 } hackster_logo = {
   64, 64, 2,
-  "LOGO",
   "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377"
   "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377"
   "\377\377\377\377\377\377\377\377\377\377\377\377\237\357\335\316\035\246\234"

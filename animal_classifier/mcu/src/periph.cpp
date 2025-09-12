@@ -115,7 +115,6 @@ void enterRecoveryMQTT(const char* resubscribeTopic)
         {
             mqttClient.subscribe(resubscribeTopic);
         }
-        // TODO: subscribe
         sleep(1000);
     }
 }

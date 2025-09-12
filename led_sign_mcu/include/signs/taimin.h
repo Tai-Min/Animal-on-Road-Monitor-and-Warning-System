@@ -4,11 +4,9 @@ static const struct {
   unsigned int 	 width;
   unsigned int 	 height;
   unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
-  char         	*comment;
   unsigned char	 pixel_data[64 * 64 * 2 + 1];
 } taimin = {
   64, 64, 2,
-  "PHOTO",
   "E)E)E)E)E)E)E)E)E)E)E)E)E)e)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)"
   "E)E)E)E)E)E)E)E)$!$!$!$!$!$!$!$!$!$!$!$!$!$!$!$!$!$!$!$!E)E)E)E)E)E)E)E)"
   "E)E)E)E)e)e)e)e)e)e)e)e)e)e)e)e)e)e)e)e)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)E)"

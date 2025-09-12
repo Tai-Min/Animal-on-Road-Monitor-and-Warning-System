@@ -1,7 +1,8 @@
 #pragma once
 #include <stddef.h>
+#include <functional>
 
-typedef int(*DataProcessor)(size_t, size_t, float*);
+typedef std::function<int(size_t, size_t, float*)> DataProcessor;
 
 enum ClassificationResult {
     EMPTY,
@@ -10,13 +11,10 @@ enum ClassificationResult {
 };
 
 /**
- * @brief Register pointer to preprocessor function for the classifier
- * 
- * @param processor Pointer to preprocessor
- */
-void registerRawDataProcessor(DataProcessor processor);
-
-/**
  * @brief Run inference
+ * 
+ * @param rawDataProcessor Input data processor
+ * 
+ * @return Result of the classification
  */
-ClassificationResult runClassifier();
+ClassificationResult runClassifier(DataProcessor rawDataProcessor);

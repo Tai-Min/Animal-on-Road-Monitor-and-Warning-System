@@ -18,22 +18,18 @@ void loop();
 static void enterSleep(char *topic, uint8_t *msg, unsigned int length);
 
 /**
- * @brief Edge Impulse input data copier
- */
-static int rawDataProcessor(size_t offset, size_t length, float *out_ptr);
-
-/**
  * @brief Publish fb buffer to mqttTopicImg
  *
+ * @param fb Frame buffer
+ * 
  * @return false on failure
  */
-static bool publishImg();
+static bool publishImg(camera_fb_t *fb);
 
 namespace
 {
   WiFiClass *network;
   PubSubClient *mqttClient;
-  camera_fb_t *fb;
 }
 
 void setup()
@@ -47,7 +43,7 @@ void setup()
 
   while (!network)
   {
-    network = configureNetwork(secrets::WiFiSSID, secrets::WiFiPassword);
+    network = configureNetwork(secrets::WIFI_SSID, secrets::WIFI_PWD);
   }
 
   while (!mqttClient)
@@ -56,18 +52,16 @@ void setup()
     {
       enterRecoveryWiFi();
     }
-    mqttClient = configureMQTT(secrets::MQTTBroker, secrets::MQTTPort);
+    mqttClient = configureMQTT(secrets::MQTT_IP, secrets::MQTT_PORT);
   }
 
   mqttClient->setCallback(enterSleep);
 
-  if (!mqttClient->subscribe(mqttTopicStandby))
+  if (!mqttClient->subscribe(MQTT_TOPIC_STDBY))
   {
     Serial.println("Failed to subscribe to sleep topic");
     return;
   }
-
-  registerRawDataProcessor(rawDataProcessor);
 
   Serial.print("Device ready! Use 'http://");
   Serial.print(network->localIP());
@@ -78,19 +72,31 @@ void loop()
 {
   mqttClient->loop();
 
-  fb = esp_camera_fb_get();
+  camera_fb_t *fb = esp_camera_fb_get();
+
   if (nullptr == fb)
   {
     Serial.println("Failed to get frame");
     return;
   }
 
-  ClassificationResult res = runClassifier();
+  auto dataProcessor = [fb](size_t offset, size_t length, float *out_ptr) -> int
+  {
+    uint8_t *start = fb->buf + offset;
+    for (size_t i = 0; i < length; i++)
+    {
+      int filled = (start[i] << 16) | (start[i] << 8) | (start[i]);
+      out_ptr[i] = filled;
+    }
+    return 0;
+  };
+
+  ClassificationResult res = runClassifier(dataProcessor);
   if (res == ClassificationResult::ANIMAL)
   {
-    if (!publishImg())
+    if (!publishImg(fb))
     {
-      enterRecoveryMQTT(mqttTopicStandby);
+      enterRecoveryMQTT(MQTT_TOPIC_STDBY);
     }
   }
   esp_camera_fb_return(fb);
@@ -99,24 +105,13 @@ void loop()
 void enterSleep(char *topic, uint8_t *msg, unsigned int length)
 {
   Serial.println("Entering sleep");
-  esp_sleep_enable_timer_wakeup(deepSleepTime_us);
+  esp_sleep_enable_timer_wakeup(DEEP_SLEEP_TIME_US);
   esp_deep_sleep_start();
 }
 
-int rawDataProcessor(size_t offset, size_t length, float *out_ptr)
+bool publishImg(camera_fb_t *fb)
 {
-  uint8_t *start = fb->buf + offset;
-  for (size_t i = 0; i < length; i++)
-  {
-    int filled = (start[i] << 16) | (start[i] << 8) | (start[i]);
-    out_ptr[i] = filled;
-  }
-  return 0;
-}
-
-bool publishImg()
-{
-  if (!mqttClient->beginPublish(mqttTopicImg, fb->len, false))
+  if (!mqttClient->beginPublish(MQTT_TOPIC_IMG, fb->len, false))
   {
     Serial.println("Failed to begin publish");
     return false;
