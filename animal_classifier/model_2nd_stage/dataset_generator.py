@@ -3,13 +3,14 @@ import glob
 import cv2 as cv
 import config
 
-def process_image(img_path, export_path):
-    
+def process_image(img_path, export_path, class_name, idx):
     img = cv.imread(img_path)
     img = cv.resize(img, (config.CAMERA_WIDTH, config.CAMERA_HEIGHT), interpolation= cv.INTER_CUBIC)
+    gimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-    img_name = os.path.basename(img_path)
-    cv.imwrite(os.path.join(export_path, img_name), img)
+    zeros = "0" * (3 - len(str(idx)))
+    cv.imwrite(os.path.join(export_path, class_name + "." + zeros + str(idx) + ".jpg"), gimg)
+    return idx + 1
 
 if __name__ == "__main__":
     CLASSES_PATH = "./dataset/animals/"
@@ -20,8 +21,8 @@ if __name__ == "__main__":
 
     classes_folders = [file for file in os.listdir(CLASSES_PATH)]
 
+    idx = 0
     for animal_class in classes_folders:
-        animal_class += "/"
         images = glob.glob(os.path.join(CLASSES_PATH, animal_class, "*.jpg"))
 
         animal_export_path = os.path.join(EXPORT_PATH, animal_class)
@@ -30,4 +31,4 @@ if __name__ == "__main__":
             os.makedirs(animal_export_path)
 
         for img in images:
-            process_image(img, animal_export_path)
+            idx = process_image(img, animal_export_path, animal_class, idx)

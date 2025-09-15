@@ -6,8 +6,10 @@ from keras import layers
 import numpy as np
 import cv2 as cv
 import csv
+import random
 
 IMAGES_PATH = "./dataset/processed/"
+MODEL_PATH = "./output/model.keras"
 
 def extract_filename(label_csv_row):
     return label_csv_row[0]
@@ -119,10 +121,16 @@ with open('./dataset/labels.csv', mode='r') as file:
     for row in data:
         labels.append([extract_filename(row), extract_label(row)])
 
-dataset_training = DataGenerator(labels, 32)
+random.shuffle(labels)
+
+split = int(len(labels) * 0.2)
+
+dataset_training = DataGenerator(labels[:split], 32)
+dataset_validation = DataGenerator(labels[split:], 16)
 
 model = get_architecture()
 model.summary()
-keras.utils.plot_model(model, "model.png", dpi=100, show_shapes=True)
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
-#history = model.fit(ataset_training, epochs=10)
+keras.utils.plot_model(model, "model.png", dpi = 100, show_shapes = True)
+model.compile(optimizer=keras.optimizers.Adam(learning_rate = 0.01), loss = 'categorical_crossentropy', metrics = ['accuracy'])
+checkpoint = keras.callbacks.ModelCheckpoint(MODEL_PATH, monitor='accuracy', verbose = 1, save_best_only = True, mode = 'max')
+history = model.fit(dataset_training, validation_data = dataset_validation, epochs = 100, callbacks = [checkpoint])

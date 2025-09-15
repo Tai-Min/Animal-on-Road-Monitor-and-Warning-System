@@ -1,0 +1,1 @@
+classes_names = ['boar', 'cow', 'deer', 'dog', 'empty', 'goat', 'horse', 'pig', 'sheep', 'wolf']

@@ -98,6 +98,10 @@ void loop()
     {
       enterRecoveryMQTT(MQTT_TOPIC_STDBY);
     }
+    else
+    {
+      delay(DELAY_AFTER_PUBLISH_MS);
+    }
   }
   esp_camera_fb_return(fb);
 }

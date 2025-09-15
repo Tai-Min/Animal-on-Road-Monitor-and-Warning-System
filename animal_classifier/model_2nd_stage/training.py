@@ -12,6 +12,7 @@ DATASET_PATH,
 validation_split = 0.2,
 subset = "training",
 seed = 1,
+color_mode='grayscale',
 image_size = (config.CAMERA_HEIGHT, config.CAMERA_WIDTH),
 batch_size = TRAINING_BATCH_SIZE)
 
@@ -20,6 +21,7 @@ DATASET_PATH,
 validation_split = 0.2,
 subset = "validation",
 seed = 1,
+color_mode='grayscale',
 image_size = (config.CAMERA_HEIGHT, config.CAMERA_WIDTH),
 batch_size = TRAINING_BATCH_SIZE)
 
@@ -73,12 +75,12 @@ def get_architecture():
 
         return x
 
-    input = layers.Input((config.CAMERA_HEIGHT, config.CAMERA_WIDTH, 3))
+    input = layers.Input((config.CAMERA_HEIGHT, config.CAMERA_WIDTH, 1))
 
     x = keras.layers.RandomFlip("vertical")(input)
-    x = keras.layers.RandomRotation(0.2)(x)
+    x = keras.layers.RandomRotation(0.1)(x)
     x = keras.layers.RandomBrightness(0.1)(x)
-    x = keras.layers.RandomZoom(0.2)(x)
+    x = keras.layers.RandomZoom(0.1)(x)
 
     x = layers.Conv2D(4, (3, 3), strides=(2, 2))(x)
     x = layers.BatchNormalization(axis = 3)(x)
@@ -90,6 +92,10 @@ def get_architecture():
 
     x = conv_layer(x, 3, [64, 64, 128], 1)
     x = id_layer(x, 3, [64, 64, 128])
+
+    x = conv_layer(x, 3, [128, 128, 256], 1)
+    x = id_layer(x, 3, [128, 128, 256])
+
     x = layers.AveragePooling2D((2, 2))(x)
 
     x = layers.Flatten()(x)
@@ -100,8 +106,8 @@ def get_architecture():
 model = get_architecture()
 
 model.summary()
-keras.utils.plot_model(model, "model.png", dpi=100, show_shapes=True)
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+keras.utils.plot_model(model, "model.png", dpi = 100, show_shapes = True)
+model.compile(optimizer=keras.optimizers.Adam(learning_rate = 0.005), loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 
-checkpoint = keras.callbacks.ModelCheckpoint(MODEL_PATH, monitor='val_accuracy', verbose = 1, save_best_only = True, mode = 'max')
+checkpoint = keras.callbacks.ModelCheckpoint(MODEL_PATH, monitor = 'val_accuracy', verbose = 1, save_best_only = True, mode = 'max')
 history = model.fit(train_set, validation_data = validation_set, epochs=100, callbacks=[checkpoint])
