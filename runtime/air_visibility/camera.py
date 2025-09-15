@@ -7,22 +7,27 @@ class Camera:
         self.thread_event = Event()
         self.thread = None
         self.mutex = Lock()
+        self.frame = None
 
     def __capture_loop(self):
         while not self.thread_event.is_set():
             ret, frame = self.cam.read()
+
             if ret:
+                frame = cv.resize(frame, (400, 240))
+                with self.mutex:
+                    self.frame = frame
+
                 cv.imshow("camera", frame)
                 cv.waitKey(1)
 
-    def start(self):
+    def start(self, sensor_id, width, height, flip, framerate):
         
-        capture_str = f"""nvarguscamerasrc sensor_id={0} ! video/x-raw(memory:NVMM), width=(int){1920},
-        height={1080}, format=(string)NV12, framerate=(fraction){30}/1 ! nvvidconv flip-method={0} !
-        video/x-raw, width={1920}, height=(int){1080}, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink"""
+        capture_str = f"""nvarguscamerasrc sensor_id={sensor_id} ! video/x-raw(memory:NVMM), width=(int){width},
+        height={height}, format=(string)NV12, framerate=(fraction){framerate}/1 ! nvvidconv flip-method={flip} !
+        video/x-raw, width={width}, height=(int){height}, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink"""
 
         self.cam = cv.VideoCapture(capture_str)
-
 
         if self.thread:
             print("Thread already running")
@@ -55,4 +60,4 @@ if __name__ == "__main__":
 
     camera = Camera()
     signal.signal(signal.SIGINT, sigint_handler)
-    camera.start()
+    camera.start(0, 1280, 720, 2, 30)
