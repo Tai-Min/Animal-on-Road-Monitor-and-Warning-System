@@ -11,7 +11,9 @@ class Camera:
     def __capture_loop(self):
         while not self.thread_event.is_set():
             ret, frame = self.cam.read()
-            print(ret)
+            if ret:
+                cv.imshow("camera", frame)
+                cv.waitKey(1)
 
     def start(self):
         
