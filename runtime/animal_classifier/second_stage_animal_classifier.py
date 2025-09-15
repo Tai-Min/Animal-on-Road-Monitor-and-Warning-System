@@ -2,6 +2,7 @@ from threading import Lock, Thread, Event
 import tensorflow as tf
 import numpy as np
 from .model import classes
+from .import config
 
 class SecondStageClassifier:
     def __init__(self, model_path, callback):
@@ -41,8 +42,8 @@ class SecondStageClassifier:
                 if len(self.animal_classifier_queue):
                     data = self.animal_classifier_queue.pop(0)
 
-            if data is not None and np.prod(data.shape) == 240*320:
-                data.shape = (1, 240, 320, 1)
+            if data is not None and np.prod(data.shape) == config.frame_width*config.frame_height:
+                data.shape = (1, config.frame_height, config.frame_width, 1)
                 result = self.model.serve(data)
                 result = self.__get_readable_result(result)
                 result = self.__get_best_result(result)

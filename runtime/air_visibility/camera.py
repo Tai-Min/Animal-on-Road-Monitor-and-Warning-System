@@ -1,5 +1,6 @@
 from threading import Thread, Event, Lock
 import cv2 as cv
+from . import config
 
 class Camera:
     def __init__(self):
@@ -13,7 +14,7 @@ class Camera:
             ret, frame = self.cam.read()
 
             if ret:
-                frame = cv.resize(frame, (400, 240))
+                frame = cv.resize(frame, (config.output_width, config.output_height))
                 with self.mutex:
                     self.frame = frame
 
@@ -62,8 +63,8 @@ if __name__ == "__main__":
     camera_1 = Camera()
     camera_2 = Camera()
     signal.signal(signal.SIGINT, sigint_handler)
-    camera_1.start(0, 1280, 720, 2, 30)
-    camera_2.start(1, 1280, 720, 2, 30)
+    camera_1.start(0, config.camera_width, config.camera_height, config.camera_flip, config.camera_framerate)
+    camera_2.start(1, config.camera_width, config.camera_height, config.camera_flip, config.camera_framerate)
 
     while True:
         f0 = camera_1.get_frame()
