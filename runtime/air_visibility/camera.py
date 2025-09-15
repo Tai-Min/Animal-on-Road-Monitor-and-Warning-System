@@ -39,3 +39,18 @@ class Camera:
 
     def get_frame(self):
         pass
+
+if __name__ == "__main__":
+    import signal
+    import sys
+
+    camera = None
+
+    def sigint_handler(signal, frame):
+        if camera:
+            camera.stop()
+        sys.exit(0)
+
+    camera = Camera()
+    signal.signal(signal.SIGINT, sigint_handler)
+    camera.start()
