@@ -18,11 +18,12 @@ class Camera:
                 with self.mutex:
                     self.frame = frame
 
-                cv.imshow("camera", frame)
+                cv.imshow(f"camera_{self.id}", frame)
                 cv.waitKey(1)
 
     def start(self, sensor_id, width, height, flip, framerate):
-        
+        self.id = sensor_id
+
         capture_str = f"""nvarguscamerasrc sensor_id={sensor_id} ! video/x-raw(memory:NVMM), width=(int){width},
         height={height}, format=(string)NV12, framerate=(fraction){framerate}/1 ! nvvidconv flip-method={flip} !
         video/x-raw, width={width}, height=(int){height}, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink"""
@@ -45,7 +46,8 @@ class Camera:
             print("Thread not running, nothing to stop")
 
     def get_frame(self):
-        pass
+        with self.mutex:
+            return self.frame.copy()
 
 if __name__ == "__main__":
     import signal
@@ -58,6 +60,16 @@ if __name__ == "__main__":
             camera.stop()
         sys.exit(0)
 
-    camera = Camera()
+    camera_1 = Camera()
+    camera_2 = Camera()
     signal.signal(signal.SIGINT, sigint_handler)
     camera.start(0, 1280, 720, 2, 30)
+    camera.start(1, 1280, 720, 2, 30)
+
+    while True:
+        f1 = camera_1.get_frame()
+        f2 = camera_2.get_frame()
+        stereo = cv.StereoBM.create(numDisparities=16, blockSize=15)
+        disparity = stereo.compute(f1,f2)
+        cv.imshow("depth", disparity)
+        cv.waitKey(1)
