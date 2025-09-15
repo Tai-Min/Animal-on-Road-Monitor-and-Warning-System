@@ -1,7 +1,7 @@
 from threading import Lock, Thread, Event
 import tensorflow as tf
 import numpy as np
-from model import classes
+from .model import classes
 
 class SecondStageClassifier:
     def __init__(self, model_path, callback):
