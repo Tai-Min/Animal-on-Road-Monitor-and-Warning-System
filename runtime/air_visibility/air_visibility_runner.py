@@ -1,13 +1,16 @@
 from threading import Thread, Event
 import tensorflow as tf
 import numpy as np
+import camera
 
 class AirVisibilityRunner:
-    def __init__(self, model_path, callback):
+    def __init__(self, model_path, callback, cam_id_0, cam_id_1):
         self.thread_event = Event()
         self.thread = None
         self.model = tf.saved_model.load(model_path)
         self.cb = callback
+        self.c0 = camera.Camera()
+        self.c1 = camera.Camera()
 
     def __inference_loop(self):
         while not self.thread_event.is_set():
@@ -24,8 +27,12 @@ class AirVisibilityRunner:
 
     def start(self):
         if self.thread:
-            print("Thread already running")
+            
+            ("Thread already running")
 
+        self.c0.start()
+        self.c1.start()
+        
         self.thread_event.clear()
         self.thread = Thread(target=self.__inference_loop)
         self.thread.start()

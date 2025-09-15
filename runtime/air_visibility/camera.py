@@ -1,5 +1,4 @@
 from threading import Thread, Event, Lock
-import numpy as np
 import cv2 as cv
 
 class Camera:
@@ -17,9 +16,6 @@ class Camera:
                 frame = cv.resize(frame, (400, 240))
                 with self.mutex:
                     self.frame = frame
-
-                cv.imshow(f"camera_{self.id}", frame)
-                cv.waitKey(1)
 
     def start(self, sensor_id, width, height, flip, framerate):
         self.id = sensor_id
@@ -47,11 +43,14 @@ class Camera:
 
     def get_frame(self):
         with self.mutex:
-            return self.frame.copy()
+            if self.frame is not None:
+                return self.frame.copy()
+        return None
 
 if __name__ == "__main__":
     import signal
     import sys
+    import time
 
     camera = None
 
@@ -63,13 +62,23 @@ if __name__ == "__main__":
     camera_1 = Camera()
     camera_2 = Camera()
     signal.signal(signal.SIGINT, sigint_handler)
-    camera.start(0, 1280, 720, 2, 30)
-    camera.start(1, 1280, 720, 2, 30)
+    camera_1.start(0, 1280, 720, 2, 30)
+    camera_2.start(1, 1280, 720, 2, 30)
 
     while True:
-        f1 = camera_1.get_frame()
-        f2 = camera_2.get_frame()
-        stereo = cv.StereoBM.create(numDisparities=16, blockSize=15)
-        disparity = stereo.compute(f1,f2)
-        cv.imshow("depth", disparity)
-        cv.waitKey(1)
+        f0 = camera_1.get_frame()
+        f1 = camera_2.get_frame()
+
+        if f0 is not None and f1 is not None:
+            f0 = cv.cvtColor(f0, cv.COLOR_BGR2GRAY)
+            f1 = cv.cvtColor(f1, cv.COLOR_BGR2GRAY)
+            stereo = cv.StereoBM.create(numDisparities=16, blockSize=25)
+            disparity = stereo.compute(f0, f1)
+            disp_normalized = None
+            disp_normalized = cv.normalize(disparity, disp_normalized, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U)
+            
+            cv.imshow("camera_0", f0)
+            cv.imshow("camera_1", f1)
+            cv.imshow("depth", disp_normalized)
+            time.sleep(0.1)
+            cv.waitKey(1)

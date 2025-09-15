@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import numpy as np
+import secrets
 
 class MQTT_Runner:
     def __init__(self, ip, port, keepalive, second_stage_fn):
@@ -59,9 +60,8 @@ if __name__ == "__main__":
     def second_stage_fn(img):
         cv.imshow("ESP32", img)
         cv.waitKey(1)
-        #cv.destroyAllWindows()
 
-    mqtt_runner = MQTT_Runner("192.168.0.234", 1883, 60, second_stage_fn)
+    mqtt_runner = MQTT_Runner(secrets.ip, secrets.port, 60, second_stage_fn)
     mqtt_runner.start_runner()
 
     while True:
