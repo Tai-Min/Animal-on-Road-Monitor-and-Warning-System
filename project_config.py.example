@@ -1,0 +1,38 @@
+# WiFi params
+WIFI_SSID = "SSID"
+WIFI_PWD = "PASSWORD"
+
+# MQTT broker params
+BROKER_IP = "IP"
+BROKER_PORT = 0 # Usually 1883
+
+# Sign driver params
+SIGN_DRIVER_COM_PORT = "PORT" # Usually COMx on Windows and /dev/ttyUSBn or similar
+SIGN_DRIVER_MODBUS_ID = 1
+
+# Air visibility artificial fog generation / training params
+FOG_DENSITY_SMALL_BETA = 0.0025
+FOG_DENSITY_MEDIUM_BETA = 0.005
+FOG_DENSITY_HIGH_BETA = 0.01
+
+BETAS = [FOG_DENSITY_SMALL_BETA, FOG_DENSITY_MEDIUM_BETA, FOG_DENSITY_HIGH_BETA]
+BETAS_STR = ["SMALL", "MEDIUM", "HIGH"]
+
+RGB_IMG_WIDTH = 200
+RGB_IMG_HEIGHT = 120
+
+SIFT_FLOW_IMG_WIDTH = 400
+SIFT_FLOW_IMG_HEIGHT = 240
+
+# Air visibility runtime camera params
+CAMERA_WIDTH = 1280
+CAMERA_HEIGHT = 720
+CAMERA_FLIP = 2
+CAMERA_FRAMERATE = 30
+
+# Animal classifier params
+ESP32_CAM_FRAME_WIDTH = 320
+ESP32_CAM_FRAME_HEIGHT = 240
+
+ANIMAL_FIRST_STAGE_TYPES = ["animal", "empty"]
+ANIMAL_SECOND_STAGE_TYPES = ["boar", "cow", "deer", "dog", "empty", "goat", "horse", "pig", "sheep", "wolf"]

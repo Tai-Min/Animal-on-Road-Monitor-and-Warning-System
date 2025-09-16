@@ -4,7 +4,6 @@ import tensorflow as tf
 import numpy as np
 import cv2 as cv
 from . import config
-from .model import classes
 
 class AirVisibilityRunner:
     def __init__(self, model_path, callback, cam_0, cam_1):
@@ -47,7 +46,7 @@ class AirVisibilityRunner:
         res = res.numpy()
         val_max = np.argmax(res)
         
-        return classes.classes_names[val_max]
+        return config.BETAS_STR[val_max]
 
     def __inference_loop(self):
         while not self.thread_event.is_set():
