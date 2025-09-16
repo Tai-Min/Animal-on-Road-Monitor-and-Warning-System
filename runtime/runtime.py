@@ -2,13 +2,14 @@ import signal
 import sys
 import time
 import os
+import config
 from animal_classifier.mqtt_runner import MQTT_Runner
 from animal_classifier.second_stage_animal_classifier import SecondStageClassifier
 from animal_classifier import secrets
 from air_visibility.camera import Camera
-from air_visibility.air_visibility_runner import AirVisibilityRunner, CameraMock
-from roadsign_logic import SignLogicDriver
+from air_visibility.air_visibility_runner import AirVisibilityRunner
 from sign_driver.sign_driver import SignDriver
+from runtime_logic import RuntimeLogic
 
 if __name__ == "__main__":
     second_stage_classifier = None
@@ -27,24 +28,20 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, sigint_handler)
 
-    sign_logic = SignLogicDriver()
+    sign_logic = RuntimeLogic()
 
     second_stage_classifier = SecondStageClassifier(os.path.join(os.path.dirname(__file__), "animal_classifier/model/"), sign_logic.animal_classifier_consumer)
     mqtt_runner = MQTT_Runner(secrets.BROKER_IP, secrets.BROKER_PORT, 60, second_stage_classifier.add_animal_detection_to_queue)
 
-    frame_path = os.path.join(os.path.dirname(__file__), "./media/f0.png")
-    frame_next_path = os.path.join(os.path.dirname(__file__), "./media/f0_next.png")
-    c0 = CameraMock(frame_path, frame_next_path)
-    c1 = CameraMock(frame_path, frame_next_path)
-    #c0 = Camera()
-    #c1 = Camera()
-    air_visibility_runner = AirVisibilityRunner(os.path.join(os.path.dirname(__file__), "air_visibility/model/"), sign_logic.air_visibility_consumer, c0, c1)
+    c0 = Camera()
+    c1 = Camera()
+    air_visibility_runner = AirVisibilityRunner(os.path.join(os.path.dirname(__file__), "air_visibility/model/"), sign_logic.fog_visibility_consumer, c0, c1)
 
     second_stage_classifier.start()
     mqtt_runner.start_runner()
     air_visibility_runner.start()
 
-    sign_driver = SignDriver("COM9", 1)
+    sign_driver = SignDriver(config.SIGN_DRIVER_COM_PORT, 1)
 
     sign_driver.sign_warning_off()
     sign_driver.sign_speed(SignDriver.SPEED_30)

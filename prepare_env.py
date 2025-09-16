@@ -19,7 +19,6 @@ def export_air_visibility_model_config(THIS_DIR):
 
 def export_animal_classifier_mcu_config(THIS_DIR):
     CLASSIFIER_MCU_EXPORT_PATH = os.path.join(THIS_DIR, "animal_classifier/mcu/include/secrets.h")
-    print(CLASSIFIER_MCU_EXPORT_PATH)
     with open(CLASSIFIER_MCU_EXPORT_PATH, 'w') as secrets:
         secrets.write(
 f"""#pragma once
@@ -80,6 +79,12 @@ def export_runtime_animal_classifier_config(THIS_DIR):
         config.write(f"BROKER_IP = \"{project_config.BROKER_IP}\"\n")
         config.write(f"BROKER_PORT = {project_config.BROKER_PORT}")
 
+def export_runtime_config(THIS_DIR):
+    RUNTIME_EXPORT_PATH = os.path.join(THIS_DIR, "runtime/config.py")
+    with open(RUNTIME_EXPORT_PATH, 'w') as config:
+        config.write(f"WILD_ANIMALS = {str(project_config.WILD_ANIMALS)}\n")
+        config.write(f"SIGN_DRIVER_COM_PORT = \"{project_config.SIGN_DRIVER_COM_PORT}\"")
+
 if __name__ == "__main__":
     THIS_DIR = os.path.dirname(__file__)
 
@@ -89,4 +94,5 @@ if __name__ == "__main__":
     export_second_stage_config(THIS_DIR)
     export_runtime_air_visibility_config(THIS_DIR)
     export_runtime_animal_classifier_config(THIS_DIR)
+    export_runtime_config(THIS_DIR)
     
