@@ -2,3 +2,4 @@ animal_classifier/secrets.py
 animal_classifier/model
 __pycache__
 air_visibility/model
+config.py

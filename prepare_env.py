@@ -3,7 +3,6 @@ import project_config
 
 def export_air_visibility_model_config(THIS_DIR):
     AIR_VISIBILITY_MODEL_EXPORT_PATH = os.path.join(THIS_DIR, "air_visibility/config.py")
-    print(AIR_VISIBILITY_MODEL_EXPORT_PATH)
     with open(AIR_VISIBILITY_MODEL_EXPORT_PATH, 'w') as config:
         config.write(f"FOG_DENSITY_SMALL_BETA = {str(project_config.FOG_DENSITY_SMALL_BETA)}\n")
         config.write(f"FOG_DENSITY_MEDIUM_BETA = {str(project_config.FOG_DENSITY_MEDIUM_BETA)}\n")
@@ -40,13 +39,15 @@ def export_first_stage_config(THIS_DIR):
     FIRST_STAGE_MODEL_EXPORT_PATH = os.path.join(THIS_DIR, "animal_classifier/model_1st_stage/config.py")
     with open(FIRST_STAGE_MODEL_EXPORT_PATH, 'w') as config:
         config.write(f"CAMERA_WIDTH = {project_config.ESP32_CAM_FRAME_WIDTH}\n")
-        config.write(f"CAMERA_HEIGHT = {project_config.ESP32_CAM_FRAME_HEIGHT}")
+        config.write(f"CAMERA_HEIGHT = {project_config.ESP32_CAM_FRAME_HEIGHT}\n")
+        config.write(f"ANIMAL_TYPES = {str(project_config.ANIMAL_FIRST_STAGE_TYPES)}\n")
 
 def export_second_stage_config(THIS_DIR):
     SECOND_STAGE_MODEL_EXPORT_PATH = os.path.join(THIS_DIR, "animal_classifier/model_2nd_stage/config.py")
     with open(SECOND_STAGE_MODEL_EXPORT_PATH, 'w') as config:
         config.write(f"CAMERA_WIDTH = {project_config.ESP32_CAM_FRAME_WIDTH}\n")
-        config.write(f"CAMERA_HEIGHT = {project_config.ESP32_CAM_FRAME_HEIGHT}")
+        config.write(f"CAMERA_HEIGHT = {project_config.ESP32_CAM_FRAME_HEIGHT}\n")
+        config.write(f"ANIMAL_TYPES = {project_config.ANIMAL_SECOND_STAGE_TYPES}")
 
 def export_runtime_air_visibility_config(THIS_DIR):
     AIR_VISIBILITY_RUNTIME_EXPORT_PATH = os.path.join(THIS_DIR, "runtime/air_visibility/config.py")
@@ -79,10 +80,10 @@ def export_runtime_animal_classifier_config(THIS_DIR):
 if __name__ == "__main__":
     THIS_DIR = os.path.dirname(__file__)
 
-    #export_air_visibility_model_config(THIS_DIR)
-    #export_animal_classifier_mcu_config(THIS_DIR)
-    #export_first_stage_config(THIS_DIR)
-    #export_second_stage_config(THIS_DIR)
-    #export_runtime_air_visibility_config(THIS_DIR)
-    #export_runtime_animal_classifier_config(THIS_DIR)
+    export_air_visibility_model_config(THIS_DIR)
+    export_animal_classifier_mcu_config(THIS_DIR)
+    export_first_stage_config(THIS_DIR)
+    export_second_stage_config(THIS_DIR)
+    export_runtime_air_visibility_config(THIS_DIR)
+    export_runtime_animal_classifier_config(THIS_DIR)
     

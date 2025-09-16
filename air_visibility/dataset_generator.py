@@ -9,9 +9,9 @@ import csv
 
 def get_foggy_img(img, distance_map, beta):
     # Assuming that RGB image is smaller or equal to sift/flow images it can be resized for faster processing.
-    if img.shape[0] > project_config.SIFT_FLOW_IMG_HEIGHT or img.shape[1] > project_config.SIFT_FLOW_IMG_WIDTH:
-        img = cv.resize(img, (project_config.SIFT_FLOW_IMG_WIDTH, project_config.SIFT_FLOW_IMG_HEIGHT))
-        distance_map = cv.resize(distance_map, (project_config.SIFT_FLOW_IMG_WIDTH, project_config.SIFT_FLOW_IMG_HEIGHT))
+    if img.shape[0] > config.SIFT_FLOW_IMG_HEIGHT or img.shape[1] > config.SIFT_FLOW_IMG_WIDTH:
+        img = cv.resize(img, (config.SIFT_FLOW_IMG_WIDTH, config.SIFT_FLOW_IMG_HEIGHT))
+        distance_map = cv.resize(distance_map, (config.SIFT_FLOW_IMG_WIDTH, config.SIFT_FLOW_IMG_HEIGHT))
 
     img_fogged = img.copy()
 
@@ -41,7 +41,7 @@ def get_next_frame_name(img_name):
 def get_sift_img(img):
     img_copy = img.copy()
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    img_gray = cv.resize(img, (project_config.SIFT_FLOW_IMG_WIDTH, project_config.SIFT_FLOW_IMG_HEIGHT))
+    img_gray = cv.resize(img, (config.SIFT_FLOW_IMG_WIDTH, config.SIFT_FLOW_IMG_HEIGHT))
 
     sift = cv.SIFT_create()
     kp = sift.detect(img_gray, None)
@@ -49,11 +49,11 @@ def get_sift_img(img):
     return img_sift
 
 def get_flow_img(img, next_img):
-    img_gray = cv.resize(img, (project_config.SIFT_FLOW_IMG_WIDTH, project_config.SIFT_FLOW_IMG_HEIGHT))
+    img_gray = cv.resize(img, (config.SIFT_FLOW_IMG_WIDTH, config.SIFT_FLOW_IMG_HEIGHT))
     hsv = np.zeros_like(img_gray)
     img_gray = cv.cvtColor(img_gray,cv.COLOR_BGR2GRAY)
     
-    next_img_gray = cv.resize(next_img, (project_config.SIFT_FLOW_IMG_WIDTH, project_config.SIFT_FLOW_IMG_HEIGHT))
+    next_img_gray = cv.resize(next_img, (config.SIFT_FLOW_IMG_WIDTH, config.SIFT_FLOW_IMG_HEIGHT))
     next_img_gray = cv.cvtColor(next_img_gray,cv.COLOR_BGR2GRAY)
     
     flow = cv.calcOpticalFlowFarneback(img_gray, next_img_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
@@ -79,9 +79,9 @@ def process_folder(images_folder, idx):
         print("Processing %s (%s)" % (rgb_sample_name_no_extension, str(idx)))
 
         # Roll fog density
-        beta_idx = random.randrange(0, len(project_config.BETAS))
-        beta = random.uniform(0, 1) * project_config.BETAS[beta_idx]
-        print("Selected fog density: %s" % project_config.BETAS_STR[beta_idx])
+        beta_idx = random.randrange(0, len(config.BETAS))
+        beta = random.uniform(0, 1) * config.BETAS[beta_idx]
+        print("Selected fog density: %s" % config.BETAS_STR[beta_idx])
         print("BETA is %f" % beta)
 
         if(not os.path.exists(depth_path)):
@@ -120,7 +120,7 @@ def process_folder(images_folder, idx):
         img_flow = get_flow_img(img_fogged, img_foggy_next)
 
         # Resize fogged image at the end of processing
-        img_fogged = cv.resize(img_fogged, (project_config.RGB_IMG_WIDTH, project_config.RGB_IMG_HEIGHT))
+        img_fogged = cv.resize(img_fogged, (config.RGB_IMG_WIDTH, config.RGB_IMG_HEIGHT))
 
         cv.imwrite(os.path.join(EXPORT_PATH, str(idx) + "_rgb.png"), img_fogged)
         cv.imwrite(os.path.join(EXPORT_PATH, str(idx) + "_sift.png"), img_sift)
@@ -129,7 +129,7 @@ def process_folder(images_folder, idx):
         with open(csv_path, 'a', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',',
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow([str(str(idx))] + [str(project_config.BETAS_STR[beta_idx])] + [str(beta)])
+            writer.writerow([str(str(idx))] + [str(config.BETAS_STR[beta_idx])] + [str(beta)])
 
         idx += 1
         print("%s (%s) processed" % (rgb_sample_name_no_extension, str(idx)))

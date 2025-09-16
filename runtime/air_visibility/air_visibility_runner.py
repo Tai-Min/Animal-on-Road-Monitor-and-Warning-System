@@ -18,7 +18,7 @@ class AirVisibilityRunner:
     def __get_sift_img(self, img):
         img_copy = img.copy()
         img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        img_gray = cv.resize(img, (config.sift_flow_width, config.sift_flow_height))
+        img_gray = cv.resize(img, (config.SIFT_FLOW_WIDTH, config.SIFT_FLOW_HEIGHT))
 
         sift = cv.SIFT_create()
         kp = sift.detect(img_gray, None)
@@ -26,11 +26,11 @@ class AirVisibilityRunner:
         return img_sift
 
     def __get_flow_img(self, img, next_img):
-        img_gray = cv.resize(img, (config.sift_flow_width, config.sift_flow_height))
+        img_gray = cv.resize(img, (config.SIFT_FLOW_WIDTH, config.SIFT_FLOW_HEIGHT))
         hsv = np.zeros_like(img_gray)
         img_gray = cv.cvtColor(img_gray,cv.COLOR_BGR2GRAY)
         
-        next_img_gray = cv.resize(next_img, (config.sift_flow_width, config.sift_flow_height))
+        next_img_gray = cv.resize(next_img, (config.SIFT_FLOW_WIDTH, config.SIFT_FLOW_HEIGHT))
         next_img_gray = cv.cvtColor(next_img_gray,cv.COLOR_BGR2GRAY)
         
         flow = cv.calcOpticalFlowFarneback(img_gray, next_img_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
@@ -59,7 +59,7 @@ class AirVisibilityRunner:
 
             f0_next = self.c0.get_frame()
             
-            desired_shape = config.output_width*config.output_height*3
+            desired_shape = config.CAMERA_WIDTH*config.CAMERA_HEIGHT*3
             if f0 is not None and f1 is not None and f0_next is not None and \
                 np.prod(f0.shape) == desired_shape and np.prod(f1.shape) == desired_shape and\
                 np.prod(f0_next.shape) == desired_shape:
@@ -67,11 +67,11 @@ class AirVisibilityRunner:
                 f0_sift = self.__get_sift_img(f0)
                 f0_flow = self.__get_flow_img(f0, f0_next)
 
-                f0 = cv.resize(f0.copy(), (config.rgb_height, config.rgb_width))
+                f0 = cv.resize(f0.copy(), (config.RGB_HEIGHT, config.RGB_WIDTH))
 
-                f0.shape = (1, config.rgb_height, config.rgb_width, 3)
-                f0_sift.shape = (1, config.sift_flow_height, config.sift_flow_width, 3)
-                f0_flow.shape = (1, config.sift_flow_height, config.sift_flow_width, 3)
+                f0.shape = (1, config.RGB_HEIGHT, config.RGB_WIDTH, 3)
+                f0_sift.shape = (1, config.SIFT_FLOW_HEIGHT, config.SIFT_FLOW_WIDTH, 3)
+                f0_flow.shape = (1, config.SIFT_FLOW_HEIGHT, config.SIFT_FLOW_WIDTH, 3)
 
                 result = self.model.serve([f0, f0_sift, f0_flow])
                 result = self.__get_result(result)
@@ -87,8 +87,8 @@ class AirVisibilityRunner:
             
             ("Thread already running")
 
-        self.c0.start(0, config.camera_width, config.camera_height, config.camera_flip, config.camera_framerate)
-        self.c1.start(1, config.camera_width, config.camera_height, config.camera_flip, config.camera_framerate)
+        self.c0.start(0, config.CAMERA_WIDTH, config.CAMERA_HEIGHT, config.CAMERA_FLIP, config.CAMERA_FRAMERATE)
+        self.c1.start(1, config.CAMERA_WIDTH, config.CAMERA_HEIGHT, config.CAMERA_FLIP, config.CAMERA_FRAMERATE)
         
         self.thread_event.clear()
         self.thread = Thread(target=self.__inference_loop)
@@ -107,10 +107,10 @@ class AirVisibilityRunner:
 class CameraMock():
     def __init__(self, frame_path, frame_next_path):
         self.frame = cv.imread(frame_path)
-        self.frame = cv.resize(self.frame, (config.output_width, config.output_height))
+        self.frame = cv.resize(self.frame, (config.OUTPUT_WIDTH, config.OUTPUT_HEIGHT))
 
         self.frame_next = cv.imread(frame_next_path)
-        self.frame_next = cv.resize(self.frame_next, (config.output_width, config.output_height))
+        self.frame_next = cv.resize(self.frame_next, (config.OUTPUT_WIDTH, config.OUTPUT_HEIGHT))
 
         self.tick_tock = False
 
@@ -126,31 +126,3 @@ class CameraMock():
             return self.frame
         else:
             return self.frame_next
-
-if __name__ == "__main__":
-    import signal
-    import sys
-    import os
-
-    runner = None
-
-    def sigint_handler(signal, frame):
-        if runner:
-            runner.stop()
-        sys.exit(0)
-
-    def callback(res):
-        print(res)
-
-    frame_path = os.path.join(os.path.dirname(__file__), "../media/f0.png")
-    frame_next_path = os.path.join(os.path.dirname(__file__), "../media/f0_next.png")
-    c0 = CameraMock(frame_path, frame_next_path)
-    c1 = CameraMock(frame_path, frame_next_path)
-    runner = AirVisibilityRunner(os.path.join(os.path.dirname(__file__), "model/"), callback, c0, c1)
-    signal.signal(signal.SIGINT, sigint_handler)
-
-    runner.start()
-
-    while True:
-        time.sleep(1)
-        #classifier.add_animal_detection_to_queue(img.copy())
