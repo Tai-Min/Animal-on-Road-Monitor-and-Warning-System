@@ -2,3 +2,4 @@ dataset/
 model.png
 __pycache__/
 output/
+config.py

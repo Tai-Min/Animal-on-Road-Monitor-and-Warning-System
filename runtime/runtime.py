@@ -1,10 +1,10 @@
 import signal
 import sys
+import time
+import os
 from animal_classifier.mqtt_runner import MQTT_Runner
 from animal_classifier.second_stage_animal_classifier import SecondStageClassifier
 from animal_classifier import secrets
-import time
-import os
 from air_visibility.camera import Camera
 from air_visibility.air_visibility_runner import AirVisibilityRunner, CameraMock
 from roadsign_logic import SignLogicDriver

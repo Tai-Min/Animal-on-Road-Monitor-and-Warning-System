@@ -63,24 +63,3 @@ class SignDriver:
         self.client.write_register(self.signs[self.SIGN_IDX_SPEED]["type"],
                                    self.SIGN_STOP, device_id=self.ID)
         self.client.write_coil(self.signs[self.SIGN_IDX_SPEED]["on"], 1, device_id=self.ID)
-
-
-if __name__ == "__main__":
-    import time
-    
-    driver = SignDriver("COM9", 1)
-
-    while True:
-        driver.sign_warning_off()
-        driver.sign_speed_stop_off()
-        time.sleep(1)
-        driver.sign_warning_animals()
-
-        speeds = [driver.SPEED_30, driver.SPEED_50, driver.SPEED_70, driver.SPEED_90]
-        for i in range(4):
-            driver.sign_speed(speeds[i])
-            time.sleep(1)
-            
-        driver.sign_warning_wild_animals()
-        driver.sign_stop()
-        time.sleep(1)
