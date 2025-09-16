@@ -37,8 +37,7 @@ class RuntimeLogic:
             return SignDriver.SPEED_50
         elif (fog == "HIGH" or fog == "MEDIUM") and sign == self.ANIMAL_SIGN_WILD:
             return SignDriver.SPEED_30
-
-        return SignDriver.SPEED_30
+        return SignDriver.SPEED_30 # Fallback just in case
 
     def __is_wild_animal(self, animal):
         if animal in config.WILD_ANIMALS:
@@ -46,12 +45,14 @@ class RuntimeLogic:
         return False
 
     def __get_driver_sign(self):
-        if self.animal_applied == self.ANIMAL_SIGN_NONE:
-            return None
-        if self.animal_applied == self.ANIMAL_SIGN_FARM:
-            return SignDriver.SIGN_WILD_ANIMALS
-        if self.animal_applied == self.ANIMAL_SIGN_WILD:
-            return SignDriver.SIGN_WILD_ANIMALS
+        with self.animal_lock:
+            if self.animal_applied == self.ANIMAL_SIGN_NONE:
+                return None
+            if self.animal_applied == self.ANIMAL_SIGN_FARM:
+                return SignDriver.SIGN_WILD_ANIMALS
+            if self.animal_applied == self.ANIMAL_SIGN_WILD:
+                return SignDriver.SIGN_WILD_ANIMALS
+        return SignDriver.SIGN_WILD_ANIMALS # Fallback just in case
 
     def __reset_animal_current(self):
         self.animal_current = self.ANIMAL_SIGN_NONE
