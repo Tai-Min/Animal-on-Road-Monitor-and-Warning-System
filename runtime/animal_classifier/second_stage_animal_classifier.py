@@ -42,8 +42,8 @@ class SecondStageClassifier:
                 if len(self.animal_classifier_queue):
                     data = self.animal_classifier_queue.pop(0)
 
-            if data is not None and np.prod(data.shape) == config.frame_width*config.frame_height:
-                data.shape = (1, config.frame_height, config.frame_width, 1)
+            if data is not None and np.prod(data.shape) == config.FRAME_WIDTH*config.FRAME_HEIGHT:
+                data.shape = (1, config.FRAME_HEIGHT, config.FRAME_WIDTH, 1)
                 result = self.model.serve(data)
                 result = self.__get_readable_result(result)
                 result = self.__get_best_result(result)
@@ -71,32 +71,3 @@ class SecondStageClassifier:
             self.thread = None
         else:
             print("Thread not running, nothing to stop")
-
-if __name__ == "__main__":
-    import signal
-    import sys
-    import time
-    import cv2 as cv
-    import os
-
-    classifier = None
-
-    def sigint_handler(signal, frame):
-        if classifier:
-            classifier.stop()
-        sys.exit(0)
-
-    def callback(res):
-        print(res)
-
-    classifier = SecondStageClassifier(os.path.join(os.path.dirname(__file__), "model/"), callback)
-    signal.signal(signal.SIGINT, sigint_handler)
-
-    classifier.start()
-
-    img = cv.imread(os.path.join(os.path.dirname(__file__), "../media/cow.jpg"))
-    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-
-    while True:
-        time.sleep(1)
-        classifier.add_animal_detection_to_queue(img.copy())

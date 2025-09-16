@@ -50,10 +50,10 @@ class DataGenerator(keras.utils.Sequence):
         return [0, 0, 1]
 
     def __data_generation(self, labels_chunk):
-        rgb_imgs = np.empty((self.batch_size, project_config.RGB_IMG_HEIGHT, project_config.RGB_IMG_WIDTH, 3))
-        sift_imgs = np.empty((self.batch_size, project_config.SIFT_FLOW_IMG_HEIGHT, project_config.SIFT_FLOW_IMG_WIDTH, 3))
-        flow_imgs = np.empty((self.batch_size, project_config.SIFT_FLOW_IMG_HEIGHT, project_config.SIFT_FLOW_IMG_WIDTH, 3))
-        labels = np.empty((self.batch_size, len(project_config.BETAS)))
+        rgb_imgs = np.empty((self.batch_size, config.RGB_IMG_HEIGHT, config.RGB_IMG_WIDTH, 3))
+        sift_imgs = np.empty((self.batch_size, config.SIFT_FLOW_IMG_HEIGHT, config.SIFT_FLOW_IMG_WIDTH, 3))
+        flow_imgs = np.empty((self.batch_size, config.SIFT_FLOW_IMG_HEIGHT, config.SIFT_FLOW_IMG_WIDTH, 3))
+        labels = np.empty((self.batch_size, len(config.BETAS)))
 
         for idx, label in enumerate(labels_chunk):
             labels[idx] = self.__category_to_label(extract_label(label))
@@ -78,13 +78,13 @@ def get_architecture():
         layer = layers.MaxPooling2D(2, 2)(layer)
         return layer
     
-    inputs_rgb = keras.Input(shape=(project_config.RGB_IMG_HEIGHT, project_config.RGB_IMG_WIDTH, 3))
+    inputs_rgb = keras.Input(shape=(config.RGB_IMG_HEIGHT, config.RGB_IMG_WIDTH, 3))
     rgb = conv_layer_2(inputs_rgb, 64)
 
-    inputs_sift = keras.Input(shape=(project_config.SIFT_FLOW_IMG_HEIGHT, project_config.SIFT_FLOW_IMG_WIDTH, 3))
+    inputs_sift = keras.Input(shape=(config.SIFT_FLOW_IMG_HEIGHT, config.SIFT_FLOW_IMG_WIDTH, 3))
     sift = conv_layer_2(inputs_sift, 64)
 
-    inputs_flow = keras.Input(shape=(project_config.SIFT_FLOW_IMG_HEIGHT, project_config.SIFT_FLOW_IMG_WIDTH, 3))
+    inputs_flow = keras.Input(shape=(config.SIFT_FLOW_IMG_HEIGHT, config.SIFT_FLOW_IMG_WIDTH, 3))
     flow = conv_layer_2(inputs_flow, 64)
 
     sift_flow = sift + flow
@@ -110,19 +110,16 @@ def get_architecture():
 
     fc = layers.Flatten()(rgb_sift_flow)
     fc = layers.Dense(128)(fc)
-    output_layer = layers.Dense(len(project_config.BETAS), activation="softmax")(fc)
+    output_layer = layers.Dense(len(config.BETAS), activation="softmax")(fc)
     model = keras.Model((inputs_rgb, inputs_sift, inputs_flow), output_layer, name="estimator")
     return model
 
-# TODO split files into training / validation
 labels = []
 with open('./dataset/labels.csv', mode='r') as file:
     data = csv.reader(file)
     for row in data:
         labels.append([extract_filename(row), extract_label(row)])
-
 random.shuffle(labels)
-
 split = int(len(labels) * 0.2)
 
 dataset_training = DataGenerator(labels[:split], 32)

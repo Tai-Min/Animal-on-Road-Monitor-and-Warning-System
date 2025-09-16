@@ -23,8 +23,12 @@ if __name__ == "__main__":
     classes_folders = [file for file in os.listdir(CLASSES_PATH)]
 
     idx = 0
+
+    assert(len(classes_folders) == len(config.ANIMAL_TYPES), "Number of folders inside processed dataset must be equal to len(ANIMAL_FIRST_STAGE_TYPES) from project_config.py")
+
     for animal_class in classes_folders:
-        animal_class
+        assert(animal_class not in config.ANIMAL_TYPES, f"{animal_class} is not present in ANIMAL_FIRST_STAGE_TYPES")
+
         images = glob.glob(os.path.join(CLASSES_PATH, animal_class, "*.jpg"))
 
         animal_export_path = os.path.join(EXPORT_PATH, animal_class)

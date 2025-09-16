@@ -14,7 +14,7 @@ class Camera:
             ret, frame = self.cam.read()
 
             if ret:
-                frame = cv.resize(frame, (config.output_width, config.output_height))
+                frame = cv.resize(frame, (config.OUTPUT_WIDTH, config.OUTPUT_HEIGHT))
                 with self.mutex:
                     self.frame = frame
 
@@ -47,39 +47,3 @@ class Camera:
             if self.frame is not None:
                 return self.frame.copy()
         return None
-
-if __name__ == "__main__":
-    import signal
-    import sys
-    import time
-
-    camera = None
-
-    def sigint_handler(signal, frame):
-        if camera:
-            camera.stop()
-        sys.exit(0)
-
-    camera_1 = Camera()
-    camera_2 = Camera()
-    signal.signal(signal.SIGINT, sigint_handler)
-    camera_1.start(0, config.camera_width, config.camera_height, config.camera_flip, config.camera_framerate)
-    camera_2.start(1, config.camera_width, config.camera_height, config.camera_flip, config.camera_framerate)
-
-    while True:
-        f0 = camera_1.get_frame()
-        f1 = camera_2.get_frame()
-
-        if f0 is not None and f1 is not None:
-            f0 = cv.cvtColor(f0, cv.COLOR_BGR2GRAY)
-            f1 = cv.cvtColor(f1, cv.COLOR_BGR2GRAY)
-            stereo = cv.StereoBM.create(numDisparities=16, blockSize=25)
-            disparity = stereo.compute(f0, f1)
-            disp_normalized = None
-            disp_normalized = cv.normalize(disparity, disp_normalized, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U)
-            
-            cv.imshow("camera_0", f0)
-            cv.imshow("camera_1", f1)
-            cv.imshow("depth", disp_normalized)
-            time.sleep(0.1)
-            cv.waitKey(1)

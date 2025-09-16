@@ -30,7 +30,7 @@ if __name__ == "__main__":
     sign_logic = SignLogicDriver()
 
     second_stage_classifier = SecondStageClassifier(os.path.join(os.path.dirname(__file__), "animal_classifier/model/"), sign_logic.animal_classifier_consumer)
-    mqtt_runner = MQTT_Runner(secrets.ip, secrets.port, 60, second_stage_classifier.add_animal_detection_to_queue)
+    mqtt_runner = MQTT_Runner(secrets.BROKER_IP, secrets.BROKER_PORT, 60, second_stage_classifier.add_animal_detection_to_queue)
 
     frame_path = os.path.join(os.path.dirname(__file__), "./media/f0.png")
     frame_next_path = os.path.join(os.path.dirname(__file__), "./media/f0_next.png")

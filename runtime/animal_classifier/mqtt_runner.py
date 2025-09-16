@@ -1,6 +1,5 @@
 import paho.mqtt.client as mqtt
 import numpy as np
-import secrets
 
 class MQTT_Runner:
     def __init__(self, ip, port, keepalive, second_stage_fn):
@@ -40,29 +39,3 @@ class MQTT_Runner:
 
     def send_sleep(self):
         self.mqttc.publish("stdby", "!")
-
-
-if __name__ == "__main__":
-    import signal
-    import sys
-    import time
-    import cv2 as cv
-
-    mqtt_runner = None
-
-    def sigint_handler(signal, frame):
-        if mqtt_runner:
-            mqtt_runner.stop_runner()
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, sigint_handler)
-
-    def second_stage_fn(img):
-        cv.imshow("ESP32", img)
-        cv.waitKey(1)
-
-    mqtt_runner = MQTT_Runner(secrets.ip, secrets.port, 60, second_stage_fn)
-    mqtt_runner.start_runner()
-
-    while True:
-        time.sleep(1)
