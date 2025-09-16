@@ -10,6 +10,3 @@ if __name__ == "__main__":
 
     model = keras.saving.load_model(MODEL_PATH)
     model.export(EXPORT_PATH, format="tf_saved_model")
-    with open(CLASSES_PATH, 'w') as classes:
-        classes.write("classes_names = ")
-        classes.write(str(config.BETAS_STR))

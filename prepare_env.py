@@ -64,13 +64,16 @@ def export_runtime_air_visibility_config(THIS_DIR):
         config.write(f"RGB_HEIGHT = {project_config.RGB_IMG_HEIGHT}\n")
 
         config.write(f"SIFT_FLOW_WIDTH = OUTPUT_WIDTH\n")
-        config.write(f"SIFT_FLOW_HEIGHT = OUTPUT_HEIGHT")
+        config.write(f"SIFT_FLOW_HEIGHT = OUTPUT_HEIGHT\n")
+
+        config.write(f"BETAS_STR = {str(project_config.BETAS_STR)}")
 
 def export_runtime_animal_classifier_config(THIS_DIR):
     ANIMAL_CLASSIFIER_RUNTIME_EXPORT_PATH = os.path.join(THIS_DIR, "runtime/animal_classifier/config.py")
     with open(ANIMAL_CLASSIFIER_RUNTIME_EXPORT_PATH, 'w') as config:
         config.write(f"FRAME_WIDTH = {project_config.ESP32_CAM_FRAME_WIDTH}\n")
-        config.write(f"FRAME_HEIGHT = {project_config.ESP32_CAM_FRAME_HEIGHT}")
+        config.write(f"FRAME_HEIGHT = {project_config.ESP32_CAM_FRAME_HEIGHT}\n")
+        config.write(f"ANIMAL_TYPES = {str(project_config.ANIMAL_SECOND_STAGE_TYPES)}")
 
     ANIMAL_CLASSIFIER_BROKER_RUNTIME_EXPORT_PATH = os.path.join(THIS_DIR, "runtime/animal_classifier/secrets.py")
     with open(ANIMAL_CLASSIFIER_BROKER_RUNTIME_EXPORT_PATH, 'w') as config:

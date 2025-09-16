@@ -1,7 +1,6 @@
 from threading import Lock, Thread, Event
 import tensorflow as tf
 import numpy as np
-from .model import classes
 from .import config
 
 class SecondStageClassifier:
@@ -15,9 +14,9 @@ class SecondStageClassifier:
 
     def __get_readable_result(self, inference):
         inference = inference.numpy()
-        inference.shape = (len(classes.classes_names))
+        inference.shape = (len(config.ANIMAL_TYPES))
         res = []
-        for class_name, i in zip(classes.classes_names, range(np.prod(inference.shape))):
+        for class_name, i in zip(config.ANIMAL_TYPES, range(np.prod(inference.shape))):
             res.append({class_name : float(inference[i])})
         return res
 
