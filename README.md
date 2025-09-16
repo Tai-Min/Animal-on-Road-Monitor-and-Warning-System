@@ -1,6 +1,6 @@
 # Animal-on-Road-Monitor-and-Warning-System
 
-TODO: img
+![alt text](https://github.com/Tai-Min/Animal-on-Road-Monitor-and-Warning-System/blob/cleanup/media/cover.jpg "Controller image")
 
 Utilize vision based decentralized monitoring system to dynamically adjust traffic rules based on animal presence and road condition.
 
