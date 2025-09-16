@@ -16,6 +16,9 @@ FOG_DENSITY_MEDIUM_BETA = 0.005
 FOG_DENSITY_HIGH_BETA = 0.01
 
 BETAS = [FOG_DENSITY_SMALL_BETA, FOG_DENSITY_MEDIUM_BETA, FOG_DENSITY_HIGH_BETA]
+
+# If you intend to expand this list you will need to change logic inside RuntimeLogic
+# especially __lookup_speed method
 BETAS_STR = ["SMALL", "MEDIUM", "HIGH"]
 
 RGB_IMG_WIDTH = 200
@@ -36,4 +39,4 @@ ESP32_CAM_FRAME_HEIGHT = 240
 
 ANIMAL_FIRST_STAGE_TYPES = ["animal", "empty"]
 ANIMAL_SECOND_STAGE_TYPES = ["boar", "cow", "deer", "dog", "empty", "goat", "horse", "pig", "sheep", "wolf"]
-WILD_ANIMALS = ['boar', 'deer', 'dog', 'horse', 'wolf'] # Animals considered unpredictable
+WILD_ANIMALS = ['boar', 'deer', 'dog', 'horse', 'wolf'] # Animals considered unpredictable, subset of ANIMAL_SECOND_STAGE_TYPES

@@ -38,6 +38,8 @@ class RuntimeLogic:
         elif (fog == "HIGH" or fog == "MEDIUM") and sign == self.ANIMAL_SIGN_WILD:
             return SignDriver.SPEED_30
 
+        return SignDriver.SPEED_30
+
     def __is_wild_animal(self, animal):
         if animal in config.WILD_ANIMALS:
             return True
@@ -50,6 +52,11 @@ class RuntimeLogic:
             return SignDriver.SIGN_WILD_ANIMALS
         if self.animal_applied == self.ANIMAL_SIGN_WILD:
             return SignDriver.SIGN_WILD_ANIMALS
+
+    def __reset_animal_current(self):
+        self.animal_current = self.ANIMAL_SIGN_NONE
+        self.animal_farm_stamp = 0
+        self.animal_wild_stamp = 0
 
     def __process_animal_sign(self):
         now = int(time.time())
@@ -68,6 +75,7 @@ class RuntimeLogic:
                     print("Bigger animal warning occured, applying instantly")
                     self.animal_stamp = int(time.time())
                     self.animal_applied = self.animal_current
+                    self.__reset_animal_current()
 
             # Timeout occured, apply lower sign
             if self.animal_applied > self.ANIMAL_SIGN_NONE and (now - self.animal_stamp > self.ANIMAL_SIGN_TIMEOUT):
@@ -76,9 +84,11 @@ class RuntimeLogic:
                 if self.animal_applied == self.ANIMAL_SIGN_WILD and (now - self.animal_farm_stamp < self.ANIMAL_SIGN_TIMEOUT):
                     print("Farm animal warning applied")
                     self.animal_applied = self.ANIMAL_SIGN_FARM
+                    self.__reset_animal_current()
                 else:
                     print("No animal warning present")
                     self.animal_applied = self.ANIMAL_SIGN_NONE
+                    self.__reset_animal_current()
 
     def __process_speed_sign(self):
         now = int(time.time())
@@ -101,23 +111,31 @@ class RuntimeLogic:
                 print(f"Timeout, applying speed: {speed}")
                 self.speed_applied = speed
 
-    def fog_visibility_consumer(self, air_visibility):
+    def fog_visibility_consumer(self, fog_density):
         with self.fog_lock:
-            self.fog_current = air_visibility
+            self.fog_current = fog_density
             
 
     def animal_classifier_consumer(self, classification):
         if classification[1] < 0.85:
             return
         
+        now = int(time.time())
         with self.animal_lock:
             self.new_animal_detection = True
             if classification[0] == "empty":
+                # Prevent override if any animal was observed in given timeframe
+                if (now - self.animal_wild_stamp) < self.ANIMAL_SIGN_TIMEOUT or \
+                    (now - self.animal_farm_stamp) < self.ANIMAL_SIGN_TIMEOUT:
+                    return
                 self.animal_current = self.ANIMAL_SIGN_NONE
             elif self.__is_wild_animal(classification[0]):
                 self.animal_wild_stamp = int(time.time())
                 self.animal_current = self.ANIMAL_SIGN_WILD
             else:
+                # Prevent override if wild animal was observed in given timeframe
+                if (now - self.animal_wild_stamp) < self.ANIMAL_SIGN_TIMEOUT:
+                    return
                 self.animal_farm_stamp = int(time.time())
                 self.animal_current = self.ANIMAL_SIGN_FARM
 

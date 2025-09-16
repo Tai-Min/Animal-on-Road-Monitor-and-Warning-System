@@ -50,8 +50,6 @@ class AirVisibilityRunner:
 
     def __inference_loop(self):
         while not self.thread_event.is_set():
-            data = None
-
             f0 = self.c0.get_frame()
             f1 = self.c1.get_frame()
             time.sleep(0.2)
@@ -80,9 +78,6 @@ class AirVisibilityRunner:
                 if self.cb != None:
                     print(f"Sending air visibility result: {result}")
                     self.cb(result)
-
-            if data is not None and np.prod(data.shape) == 240*320: #TODO: img size
-                data.shape = (1, 240, 320, 1)
                 
     def start(self):
         if self.thread:
