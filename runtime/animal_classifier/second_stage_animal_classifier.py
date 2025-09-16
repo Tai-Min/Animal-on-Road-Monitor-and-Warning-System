@@ -48,16 +48,19 @@ class SecondStageClassifier:
                 result = self.__get_best_result(result)
 
                 if self.cb != None:
+                    print(f"Sending animal 2nd stage classifier result: {result}")
                     self.cb(result)
 
 
     def add_animal_detection_to_queue(self, img):
+        print(f"Received image from 1st stage: {img.shape}")
         with self.animal_classifier_mutex:
             self.animal_classifier_queue.append(img)
 
     def start(self):
         if self.thread:
             print("Thread already running")
+            return
 
         self.thread_event.clear()
         self.thread = Thread(target=self.__inference_loop)

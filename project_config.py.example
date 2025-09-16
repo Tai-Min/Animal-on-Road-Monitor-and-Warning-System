@@ -36,3 +36,4 @@ ESP32_CAM_FRAME_HEIGHT = 240
 
 ANIMAL_FIRST_STAGE_TYPES = ["animal", "empty"]
 ANIMAL_SECOND_STAGE_TYPES = ["boar", "cow", "deer", "dog", "empty", "goat", "horse", "pig", "sheep", "wolf"]
+WILD_ANIMALS = ['boar', 'deer', 'dog', 'horse', 'wolf'] # Animals considered unpredictable

@@ -63,6 +63,8 @@ class AirVisibilityRunner:
                 np.prod(f0.shape) == desired_shape and np.prod(f1.shape) == desired_shape and\
                 np.prod(f0_next.shape) == desired_shape:
 
+                print("Received air visibility frames, estimating visibility...")
+
                 f0_sift = self.__get_sift_img(f0)
                 f0_flow = self.__get_flow_img(f0, f0_next)
 
@@ -76,6 +78,7 @@ class AirVisibilityRunner:
                 result = self.__get_result(result)
 
                 if self.cb != None:
+                    print(f"Sending air visibility result: {result}")
                     self.cb(result)
 
             if data is not None and np.prod(data.shape) == 240*320: #TODO: img size
@@ -83,8 +86,8 @@ class AirVisibilityRunner:
                 
     def start(self):
         if self.thread:
-            
             ("Thread already running")
+            return
 
         self.c0.start(0, config.CAMERA_WIDTH, config.CAMERA_HEIGHT, config.CAMERA_FLIP, config.CAMERA_FRAMERATE)
         self.c1.start(1, config.CAMERA_WIDTH, config.CAMERA_HEIGHT, config.CAMERA_FLIP, config.CAMERA_FRAMERATE)

@@ -1,12 +1,9 @@
 from threading import Lock
 from sign_driver.sign_driver import SignDriver
 import time
+import config
 
-class SignLogicDriver:
-    FOG_SMALL = 0
-    FOG_MEDIUM = 1
-    FOG_HIGH = 2
-
+class RuntimeLogic:
     ANIMAL_SIGN_NONE = 0
     ANIMAL_SIGN_FARM = 1
     ANIMAL_SIGN_WILD = 2
@@ -16,9 +13,7 @@ class SignLogicDriver:
 
     def __init__(self):
         self.fog_lock = Lock()
-        #self.fog_stamp = 0
-        self.fog_current = self.FOG_SMALL
-        #self.fog_applied = self.FOG_SMALL
+        self.fog_current = "SMALL"
 
         self.animal_lock = Lock()
         self.animal_stamp = 0
@@ -32,21 +27,29 @@ class SignLogicDriver:
         self.speed_applied = SignDriver.SPEED_30
         self.speed_stamp = 0
 
-    def __get_speed(self, fog, sign):
-        if fog == self.FOG_SMALL and (sign == self.ANIMAL_SIGN_NONE or sign == self.ANIMAL_SIGN_FARM):
+    def __lookup_speed(self, fog, sign):
+        if fog == "SMALL" and (sign == self.ANIMAL_SIGN_NONE or sign == self.ANIMAL_SIGN_FARM):
             return SignDriver.SPEED_90
-        elif fog == self.FOG_MEDIUM and (sign == self.ANIMAL_SIGN_NONE or sign == self.ANIMAL_SIGN_FARM):
+        elif fog == "MEDIUM" and (sign == self.ANIMAL_SIGN_NONE or sign == self.ANIMAL_SIGN_FARM):
             return SignDriver.SPEED_70
-        elif (fog == self.FOG_HIGH and (sign == self.ANIMAL_SIGN_NONE or sign == self.ANIMAL_SIGN_FARM)) or \
-             (fog == self.FOG_SMALL and sign == self.ANIMAL_SIGN_WILD):
+        elif (fog == "HIGH" and (sign == self.ANIMAL_SIGN_NONE or sign == self.ANIMAL_SIGN_FARM)) or \
+             (fog == "SMALL" and sign == self.ANIMAL_SIGN_WILD):
             return SignDriver.SPEED_50
-        elif (fog == self.FOG_HIGH or fog == self.FOG_MEDIUM) and sign == self.ANIMAL_SIGN_WILD:
+        elif (fog == "HIGH" or fog == "MEDIUM") and sign == self.ANIMAL_SIGN_WILD:
             return SignDriver.SPEED_30
 
     def __is_wild_animal(self, animal):
-        if animal in ['boar', 'deer', 'dog', 'horse', 'wolf']:
+        if animal in config.WILD_ANIMALS:
             return True
         return False
+
+    def __get_driver_sign(self):
+        if self.animal_applied == self.ANIMAL_SIGN_NONE:
+            return None
+        if self.animal_applied == self.ANIMAL_SIGN_FARM:
+            return SignDriver.SIGN_WILD_ANIMALS
+        if self.animal_applied == self.ANIMAL_SIGN_WILD:
+            return SignDriver.SIGN_WILD_ANIMALS
 
     def __process_animal_sign(self):
         now = int(time.time())
@@ -80,7 +83,7 @@ class SignLogicDriver:
     def __process_speed_sign(self):
         now = int(time.time())
         with self.fog_lock and self.animal_lock:
-            speed = self.__get_speed(self.fog_current, self.animal_current)
+            speed = self.__lookup_speed(self.fog_current, self.animal_current)
 
             # Refresh timeout as new same detection occured
             if speed == self.speed_applied:
@@ -98,22 +101,10 @@ class SignLogicDriver:
                 print(f"Timeout, applying speed: {speed}")
                 self.speed_applied = speed
 
-    def __get_driver_sign(self):
-        if self.animal_applied == self.ANIMAL_SIGN_NONE:
-            return None
-        if self.animal_applied == self.ANIMAL_SIGN_FARM:
-            return SignDriver.SIGN_WILD_ANIMALS
-        if self.animal_applied == self.ANIMAL_SIGN_WILD:
-            return SignDriver.SIGN_WILD_ANIMALS
-
-    def air_visibility_consumer(self, air_visibility):
+    def fog_visibility_consumer(self, air_visibility):
         with self.fog_lock:
-            if air_visibility == "HIGH":
-                self.fog_current = self.FOG_HIGH
-            elif air_visibility == "MEDIUM":
-                self.fog_current = self.FOG_MEDIUM
-            elif air_visibility == "SMALL":
-                self.fog_current = self.FOG_SMALL
+            self.fog_current = air_visibility
+            
 
     def animal_classifier_consumer(self, classification):
         if classification[1] < 0.85:

@@ -16,7 +16,7 @@ class MQTT_Runner:
         client.subscribe("fstStageImg")
 
     def __on_message(self, client, userdata, msg):
-        print(f"Received frame from {client}")
+        print(f"Received frame from broker")
         img = np.asarray(bytearray(msg.payload), dtype=np.uint8)
 
         if np.prod(img.shape) != 240*320:
@@ -26,6 +26,7 @@ class MQTT_Runner:
         img.shape = (240, 320, 1)
 
         if self.second_stage_fn:
+            print(f"Sending 1st stage detection to 2nd stage: {img.shape}")
             self.second_stage_fn(img)
         else:
             print("No 2nd stage fn provided, skipping")
