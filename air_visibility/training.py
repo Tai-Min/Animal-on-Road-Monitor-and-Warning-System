@@ -1,12 +1,11 @@
 import os
-os.environ["KERAS_BACKEND"] = "tensorflow"
-import config
 import keras
 from keras import layers
 import numpy as np
 import cv2 as cv
 import csv
 import random
+import config
 
 IMAGES_PATH = "./dataset/processed/"
 MODEL_PATH = "./output/model.keras"
